@@ -1,3 +1,33 @@
+function isPositionFixedSupported() {
+	var container = document.body;
+
+	if (document.createElement && container && container.appendChild && container.removeChild) {
+		var el = document.createElement('div');
+
+		if (!el.getBoundingClientRect) return null;
+
+		el.innerHTML = 'x';
+		el.style.cssText = 'position:fixed;top:100px;';
+		container.appendChild(el);
+
+		var originalHeight = container.style.height,
+		originalScrollTop = container.scrollTop;
+
+		container.style.height = '3000px';
+		container.scrollTop = 500;
+
+		var elementTop = el.getBoundingClientRect().top;
+		container.style.height = originalHeight;
+
+		var isSupported = (elementTop === 100);
+		container.removeChild(el);
+		container.scrollTop = originalScrollTop;
+
+		return isSupported;
+	}
+	return null;
+}
+
 /**
  * @license 
  * jQuery Tools @VERSION Overlay - Overlay base. Extend it.
@@ -9,12 +39,12 @@
  * Since: March 2008
  * Date: @DATE 
  */
-(function($) { 
+(function(jQuery) {
 
 	// static constructs
-	$.tools = $.tools || {version: '@VERSION'};
+	jQuery.tools = jQuery.tools || {version: '@VERSION'};
 	
-	$.tools.overlay = {
+	jQuery.tools.overlay = {
 		
 		addEffect: function(name, loadFn, closeFn) {
 			effects[name] = [loadFn, closeFn];	
@@ -27,8 +57,7 @@
 			closeSpeed: 'fast',
 			effect: 'default',
 			
-			// since 1.2. fixed positioning not supported by IE6
-			fixed: !$.browser.msie || $.browser.version > 6, 
+			fixed: isPositionFixedSupported(),
 			
 			left: 'center',		
 			load: false, // 1.2
@@ -44,7 +73,7 @@
 	var instances = [], effects = {};
 		
 	// the default effect. nice and easy!
-	$.tools.overlay.addEffect('default', 
+	jQuery.tools.overlay.addEffect('default', 
 		
 		/* 
 			onLoad/onClose functions must be called otherwise none of the 
